@@ -1,0 +1,225 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(135deg, #87CEEB, #FFD700, #FF6347); /* Sky blue to sunset gold to tomato red */
+    background-attachment: fixed;
+    color: #2d2d2d; /* Dark charcoal */
+}
+
+
+.container {
+    display: flex;
+    min-height: 100vh;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.85), rgba(240, 240, 240, 0.85)); /* Soft translucent gradient */
+    border-radius: 15px;  /* Smooth rounded corners */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15); /* Light shadow for depth */
+    padding: 20px;
+}
+
+.side-menu {
+    width: 150px;
+    background-color: #3a3a3a; /* Deep charcoal */
+    color: #f4f4f4; /* Light cream */
+    padding: 20px;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.logo {
+    font-size: 22px;
+    margin-bottom: 20px;
+    text-align: center;
+    color: #d4af37; /* Gold accent */
+}
+
+nav ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+nav ul li {
+    margin-bottom: 15px;
+}
+
+nav ul li a {
+    color: #ccc; /* Cool gray */
+    text-decoration: none;
+    font-size: 14px;
+    display: block;
+    padding: 10px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+nav ul li a:hover,
+nav ul li a.active {
+    background-color: #5a5a5a; /* Soft charcoal hover */
+    color: white;
+}
+
+main {
+    flex-grow: 1;
+    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.92); /* Light translucent white */
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+#search {
+    margin-bottom: 20px;
+}
+
+#cityInput {
+    padding: 10px;
+    font-size: 16px;
+    width: 220px;
+    border-radius: 5px;
+    border: 1px solid #b0b0b0; /* Cool gray border */
+}
+
+#searchBtn {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #39a6ff; /* Saddle brown */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#searchBtn:hover {
+    background-color: #603a20; /* Darker brown hover */
+}
+
+.weather-widget {
+    background-color: #fafafa; /* Very light gray */
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+#charts {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.chart-container {
+    flex: 1 1 300px; /* Allow flexibility, with minimum width */
+    max-width: 33%;  /* Ensure each container takes up to a third of the row */
+    background-color: rgba(255, 255, 255, 0.85);
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: auto; /* Remove fixed height for better responsiveness */
+}
+
+/* Canvas specific styles */
+canvas {
+    width: 100% !important; /* Force the canvas to take full width */
+    height: auto !important; /* Allow the canvas to maintain its aspect ratio */
+}
+/* Media queries for responsiveness */
+@media (max-width: 1200px) {
+    .chart-container {
+        height: 350px; /* Reduce height on medium screens */
+    }
+}
+
+@media (max-width: 992px) {
+    .chart-container {
+        flex: 1 1 45%; /* Two charts per row on medium-sized screens */
+        height: 300px;
+    }
+}
+
+@media (max-width: 768px) {
+    .chart-container {
+        flex: 1 1 100%; /* One chart per row on small screens */
+        height: 250px;
+    }
+}
+
+@media (max-width: 576px) {
+    .chart-container {
+        height: 220px; /* Reduce height further on small mobile screens */
+    }
+}
+
+
+#chatbot {
+    margin-top: 30px;
+    background-color: rgba(255, 255, 255, 0.9); /* Soft white background */
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+}
+
+.chat-output {
+    height: 200px; /* Fixed height for chat output */
+    background-color: #f9f9f9; /* Light gray for chat background */
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    overflow-y: auto; /* Allow scroll if chat exceeds the box */
+    box-shadow: inset 0 1px 5px rgba(0, 0, 0, 0.1); /* Slight inner shadow */
+}
+
+#chatbox {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-top: 10px;
+}
+
+#chatInput {
+    flex-grow: 1;
+    padding: 10px;
+    font-size: 14px;
+    border-radius: 5px;
+    border: 1px solid #b0b0b0; /* Soft gray border */
+    margin-right: 10px;
+}
+
+#sendChat {
+    padding: 10px 15px;
+    background-color: #4682b4; /* Steel blue */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#sendChat:hover {
+    background-color: #5f9ea0; /* Cadet blue */
+}
+
+#pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+#pagination button {
+    padding: 8px 12px;
+    margin: 0 5px;
+    background-color: #39a6ff; 
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#pagination button:hover {
+    background-color: #27408b; 
+}
+    

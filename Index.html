@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Weather Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            height: 100%;
+            background: linear-gradient(135deg, #000000, #4e310b);
+            color: #333;
+        }
+        .container {
+            display: flex;
+            height: 100%;
+        }
+        .sidebar {
+            border-top-right-radius: 15px;
+            border-bottom-right-radius: 15px;
+            width: 250px;
+            background-color: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        .sidebar:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            border-radius: 15%;
+        }
+        .logo img {
+            width: 40px;
+            margin-right: 10px;
+            border-radius: 15%;
+
+        }
+        .logo-text {
+            font-size: 18px;
+            font-weight: bold;
+            color: #fff;
+        }
+        .sidebar-divider {
+            height: 1px;
+            background-color: rgba(255, 255, 255, 0.2);
+            margin: 10px 0;
+        }
+        .sidebar-button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            background-color: #8f710f;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            color: #fff;
+            transition: all 0.3s ease;
+        }
+        .sidebar-button:hover {
+            background-color: #b99d00;
+
+            transform: translateY(-2px);
+        }
+        .main-content {
+            flex-grow: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+        .search-container {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .search-container input {
+            padding: 10px;
+            width: 300px;
+            border: none;
+            border-radius: 25px 0 0 25px;
+            font-size: 16px;
+        }
+        .search-container button {
+            padding: 10px 20px;
+            background-color: #8f710f;
+            color: white;
+            border: none;
+            border-radius: 0 25px 25px 0;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        .search-container button:hover {
+            background-color: #b99d00;
+        }
+        #profile-picture {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+        }
+
+        #profile-picture img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        .weather-widget {
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease;
+        }
+        .weather-widget:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+        }
+        .charts-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .chart-wrapper {
+            width: 30%;
+            height: 300px;
+            background-color: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease;
+        }
+        .chart-wrapper:hover {
+            transform: scale(1.03);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7);
+        }
+
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+        @keyframes floating {
+            0% { transform: translate(0,  0px); }
+            50%  { transform: translate(0, 15px); }
+            100%   { transform: translate(0, -0px); }   
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="logo">
+                <img src="logo.jpeg" alt="Weather App Logo" >
+                <span class="logo-text">Weather App</span>
+            </div>
+            <div class="sidebar-divider"></div>
+            <button class="sidebar-button" onclick="window.location.href='index.html'">Dashboard</button>
+            <button class="sidebar-button" onclick="window.location.href='table.html'">Tables</button>
+        </div>
+        <div class="main-content">
+            <div class="search-container">
+                <input type="text" id="cityInput" placeholder="Enter city name">
+                <button onclick="getWeather()">Get Weather</button>
+                <img src="profile-picture.png" alt="" id = "profile-picture">
+            </div>
+            <div id="weatherWidget" class="weather-widget floating"></div>
+            <div class="charts-container">
+                <div class="chart-wrapper">
+                    <canvas id="temperatureBarChart" width="400" height="200"></canvas>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="conditionsChart"></canvas>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="temperatureLineChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    <script>
+        const API_KEY = '031bb10685bdb53d0b947e5eb8bc5c5e';
+        let forecastData = [];
+        let currentPage = 1;
+        const itemsPerPage = 10;
+        let barChart, doughnutChart, lineChart;
+    
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(showPosition, showError);
+            } else {
+                alert('Geolocation is not supported by this browser.');
+            }
+        }
+    
+        function showPosition(position) {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+            fetchWeatherAndForecastByCoords(lat, lon);
+        }
+    
+        function showError(error) {
+            switch (error.code) {
+                case error.PERMISSION_DENIED:
+                    alert("User denied the request for Geolocation.");
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    alert("Location information is unavailable.");
+                    break;
+                case error.TIMEOUT:
+                    alert("The request to get user location timed out.");
+                    break;
+                case error.UNKNOWN_ERROR:
+                    alert("An unknown error occurred.");
+                    break;
+            }
+        }
+    
+        function getWeather() {
+            const city = document.getElementById('cityInput').value;
+            const currentWeatherUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric`;
+            const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${API_KEY}&units=metric`;
+    
+            $.getJSON(currentWeatherUrl, function(data) {
+                updateWeatherWidget(data);
+            }).fail(function() {
+                alert('Error: City not found or API limit reached.');
+            });
+    
+            $.getJSON(forecastUrl, function(data) {
+                forecastData = data.list;
+                destroyCharts();  // Destroy the existing charts before updating
+                updateCharts();   // Update charts with new data
+                updateForecastTable();
+            }).fail(function() {
+                alert('Error: Unable to fetch forecast data.');
+            });
+        }
+    
+        function fetchWeatherAndForecastByCoords(lat, lon) {
+            const currentWeatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`;
+            const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`;
+    
+            $.getJSON(currentWeatherUrl, function(data) {
+                document.getElementById('cityInput').value = data.name;
+                updateWeatherWidget(data);
+            }).fail(function() {
+                alert('Error: Unable to fetch weather data for current location.');
+            });
+    
+            $.getJSON(forecastUrl, function(data) {
+                forecastData = data.list;
+                destroyCharts();  // Destroy the existing charts before updating
+                updateCharts();   // Update charts with new data
+                updateForecastTable();
+            }).fail(function() {
+                alert('Error: Unable to fetch forecast data.');
+            });
+        }
+    
+        function updateWeatherWidget(data) {
+            const widget = document.getElementById('weatherWidget');
+            const weatherCondition = data.weather[0].main.toLowerCase();
+            widget.style.backgroundImage = `url('/api/placeholder/800/400?text=${weatherCondition}')`;
+            widget.innerHTML = `
+                <h2>${data.name}</h2>
+                <p>Temperature: ${data.main.temp}°C</p>
+                <p>Humidity: ${data.main.humidity}%</p>
+                <p>Wind Speed: ${data.wind.speed} m/s</p>
+                <p>Weather: ${data.weather[0].description}</p>
+            `;
+            anime({
+                targets: widget,
+                opacity: [0, 1],
+                translateY: [50, 0],
+                duration: 1000,
+                easing: 'easeOutElastic(1, .8)'
+            });
+        }
+    
+        function updateCharts() {
+            updateTemperatureBarChart();
+            updateConditionsDoughnutChart();
+            updateTemperatureLineChart();
+        }
+    
+        function destroyCharts() {
+            if (barChart) barChart.destroy();
+            if (doughnutChart) doughnutChart.destroy();
+            if (lineChart) lineChart.destroy();
+        }
+    
+        function updateTemperatureBarChart() {
+            const ctx = document.getElementById('temperatureBarChart').getContext('2d');
+            const temperatures = forecastData.slice(0, 5).map(item => item.main.temp);
+            const labels = forecastData.slice(0, 5).map(item => new Date(item.dt * 1000).toLocaleDateString());
+    
+            barChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Temperature (°C)',
+                        data: temperatures,
+                        backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: 'white' }
+                        },
+                        title: {
+                            display: true,
+                            text: '5 Days Temperature Bar Chart',
+                            color: 'white',
+                            font: { size: 18 }
+                        }
+                    },
+                    scales: {
+                        y: { ticks: { color: 'white' } },
+                        x: { ticks: { color: 'white' } }
+                    }
+                }
+            });
+        }
+    
+        function updateConditionsDoughnutChart() {
+            const ctx = document.getElementById('conditionsChart').getContext('2d');
+            const conditions = forecastData.slice(0, 40).map(item => item.weather[0].main);
+            const conditionCounts = conditions.reduce((acc, condition) => {
+                acc[condition] = (acc[condition] || 0) + 1;
+                return acc;
+            }, {});
+    
+            doughnutChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(conditionCounts),
+                    datasets: [{
+                        data: Object.values(conditionCounts),
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.8)',
+                            'rgba(54, 162, 235, 0.8)',
+                            'rgba(255, 206, 86, 0.8)',
+                            'rgba(75, 192, 192, 0.8)',
+                            'rgba(153, 102, 255, 0.8)'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: {
+                        delay: (context) => context.dataIndex * 300
+                    },
+                    plugins: {
+                        legend: {
+                            labels: { color: 'white' }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Weather Condition',
+                            color: 'white',
+                            font: { size: 18 }
+                        }
+                    }
+                }
+            });
+        }
+    
+        function updateTemperatureLineChart() {
+            const ctx = document.getElementById('temperatureLineChart').getContext('2d');
+            const temperatures = forecastData.slice(0, 5).map(item => item.main.temp);
+            const labels = forecastData.slice(0, 5).map(item => new Date(item.dt * 1000).toLocaleDateString());
+    
+            lineChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Temperature (°C)',
+                        data: temperatures,
+                        borderColor: 'rgba(255, 159, 64, 1)',
+                        backgroundColor: 'rgba(255, 159, 64, 0.2)',
+                        borderWidth: 2,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            labels: { color: 'white' }
+                        },
+                        title: {
+                            display: true,
+                            text: '5 Days Temperature Line Chart',
+                            color: 'white',
+                            font: { size: 18 }
+                        }
+                    },
+                    scales: {
+                        y: { ticks: { color: 'white' } },
+                        x: { ticks: { color: 'white' } }
+                    }
+                }
+            });
+        }
+    
+        function updateForecastTable() {
+            const forecastTableContainer = document.getElementById('forecastTableContainer');
+            const tableHTML = `
+                <table class="forecast-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Temperature</th>
+                            <th>Condition</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${forecastData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map(item => `
+                            <tr>
+                                <td>${new Date(item.dt * 1000).toLocaleString()}</td>
+                                <td>${item.main.temp}°C</td>
+                                <td>${item.weather[0].description}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+            forecastTableContainer.innerHTML = tableHTML;
+        }
+    
+        window.onload = function() {
+            getLocation();
+        }
+    </script>
+    
+</body>
+</html>

@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Tables Page</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            height: 100%;
+            background: linear-gradient(135deg, #000000, #4e310b);
+            color: #333;
+        }
+        .container {
+            display: flex;
+            height: 100%;
+        }
+        .sidebar {
+            width: 250px;
+            background-color: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        .sidebar:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            border-radius: 15%;
+        }
+        .logo img {
+            width: 40px;
+            margin-right: 10px;
+            border-radius: 15%;
+        }
+        .logo-text {
+            font-size: 18px;
+            font-weight: bold;
+            color: #f9cd08;
+        }
+        .sidebar-divider {
+            height: 1px;
+            background-color: rgba(255, 255, 255, 0.2);
+            margin: 10px 0;
+        }
+        .sidebar-button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            background-color: #8f710f;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            color: #fff;
+            transition: all 0.3s ease;
+        }
+        .sidebar-button:hover {
+            background-color: #b99d00;
+
+            transform: translateY(-2px);
+        }
+        .main-content {
+            flex-grow: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            gap: 20px;
+        }
+        .weather-container {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+            max-width: 60%;
+        }
+        .search-container {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .search-container input {
+            padding: 10px;
+            width: 300px;
+            border: none;
+            border-radius: 25px 0 0 25px;
+            font-size: 16px;
+        }
+        .search-container button {
+            padding: 10px 20px;
+            background-color: #8f710f;
+            color: white;
+            border: none;
+            border-radius: 0 25px 25px 0;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        .search-container button:hover {
+            background-color: #b99d00;
+        }
+        .forecast-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 10px;
+        }
+        .forecast-table th, .forecast-table td {
+            padding: 15px;
+            text-align: left;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        .forecast-table th {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        .forecast-table tr:hover {
+            transform: scale(1.02);
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        .pagination {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .pagination button {
+            margin: 0 5px;
+            padding: 10px 20px;
+            cursor: pointer;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 25px;
+            color: #fff;
+            transition: all 0.3s ease;
+        }
+        .pagination button:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            max-width: 30%;
+        }
+        .chat-messages {
+            height: 200px;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            color: white;
+        }
+        .chat-input {
+            display: flex;
+        }
+        .chat-input input {
+            flex-grow: 1;
+            padding: 10px;
+            margin-right: 10px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+        }
+        .chat-input button {
+            padding: 10px 20px;
+            background-color: #8f710f;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        .chat-input button:hover {
+            background-color: #b99d00;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="logo">
+                <img src="logo.jpeg" alt="Weather App Logo" class="floating">
+                <span class="logo-text">Weather App</span>
+            </div>
+            <div class="sidebar-divider"></div>
+            <button class="sidebar-button" onclick="window.location.href='index.html'">Dashboard</button>
+            <button class="sidebar-button" onclick="window.location.href='table.html'">Tables</button>
+        </div>
+        <div class="main-content">
+            <div class="weather-container">
+                <div class="search-container">
+                    <input type="text" id="cityInput" placeholder="Enter city name">
+                    <button onclick="getWeather()">Get Weather</button>
+                </div>
+                <div id="forecastTableContainer"></div>
+                <div class="pagination">
+                    <button onclick="previousPage()">Previous</button>
+                    <button onclick="nextPage()">Next</button>
+                </div>
+            </div>
+            <div class="chat-container">
+                <div class="chat-messages" id="chatMessages"></div>
+                <div class="chat-input">
+                    <input type="text" id="chatInput" placeholder="Ask about anything...">
+                    <button onclick="sendMessage()">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_KEY = '031bb10685bdb53d0b947e5eb8bc5c5e'; 
+        let forecastData = [];
+        let currentPage = 1;
+        const itemsPerPage = 10;
+
+        function getWeather() {
+            const city = document.getElementById('cityInput').value;
+            if (city) {
+                const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${API_KEY}&units=metric`;
+
+                $.getJSON(forecastUrl, function(data) {
+                    forecastData = data.list;
+                    updateForecastTable();
+                }).fail(function() {
+                    alert('Error: Unable to fetch forecast data');
+                });
+            } else {
+                alert('Please enter a city name');
+            }
+        }
+
+        function updateForecastTable() {
+            const forecastTableContainer = document.getElementById('forecastTableContainer');
+            const tableHTML = `
+                <table class="forecast-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Temperature</th>
+                            <th>Condition</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${forecastData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map(item => `
+                            <tr>
+                                <td>${new Date(item.dt * 1000).toLocaleString()}</td>
+                                <td>${item.main.temp}°C</td>
+                                <td>${item.weather[0].description}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+            forecastTableContainer.innerHTML = tableHTML;
+        }
+
+        function previousPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                updateForecastTable();
+            }
+        }
+
+        function nextPage() {
+            if (currentPage < Math.ceil(forecastData.length / itemsPerPage)) {
+                currentPage++;
+                updateForecastTable();
+            }
+        }
+
+        function sendMessage() {
+            const chatInput = document.getElementById('chatInput');
+            const chatMessages = document.getElementById('chatMessages');
+            const userMessage = chatInput.value;
+
+            if (userMessage) {
+                const newMessage = document.createElement('div');
+                newMessage.textContent = `User: ${userMessage}`;
+                chatMessages.appendChild(newMessage);
+                chatInput.value = '';
+            }
+        }
+    </script>
+</body>
+</html>
