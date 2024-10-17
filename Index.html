@@ -22,19 +22,21 @@
             display: flex;
             height: 100%;
         }
-        .sidebar {
-            border-top-right-radius: 15px;
-            border-bottom-right-radius: 15px;
-            width: 250px;
-            background-color: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            padding: 20px;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-        }
-        .sidebar:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-        }
+            .sidebar {
+        border-top-right-radius: 15px;
+        border-bottom-right-radius: 15px;
+        width: 250px;
+        background-color: rgba(255, 255, 255, 0.05); /* More translucent when not hovered */
+        backdrop-filter: blur(10px);
+        padding: 20px;
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    .sidebar:hover {
+        background-color: rgba(255, 255, 255, 0.08); /* Brighter shade when hovered */
+    }
+
         .logo {
             display: flex;
             align-items: center;
@@ -50,8 +52,31 @@
         .logo-text {
             font-size: 18px;
             font-weight: bold;
-            color: #fff;
+            color: #fd9813;
+            
         }
+        .unit-toggle-container {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Add some spacing between the label and dropdown */
+}
+
+#unitSelect {
+    padding: 10px; /* Add padding for better appearance */
+    border: none;
+    border-radius: 5px;
+background-color: #693c00;    color: white; /* Text color */
+    cursor: pointer;
+    transition: all 0.3s ease; /* Smooth transition */
+}
+#unitSelect_text{
+    color: white;
+    margin: 10px;
+}
+#unitSelect:hover {
+background-color: #bb6a00;
+}
+
         .sidebar-divider {
             height: 1px;
             background-color: rgba(255, 255, 255, 0.2);
@@ -62,7 +87,7 @@
             width: 100%;
             padding: 10px;
             margin: 5px 0;
-            background-color: #8f710f;
+            background-color: #693c00;
             border: none;
             border-radius: 5px;
             cursor: pointer;
@@ -70,7 +95,7 @@
             transition: all 0.3s ease;
         }
         .sidebar-button:hover {
-            background-color: #b99d00;
+            background-color: #bb6a00;
 
             transform: translateY(-2px);
         }
@@ -95,7 +120,7 @@
         }
         .search-container button {
             padding: 10px 20px;
-            background-color: #8f710f;
+            background-color: #693c00;
             color: white;
             border: none;
             border-radius: 0 25px 25px 0;
@@ -104,7 +129,7 @@
             transition: all 0.3s ease;
         }
         .search-container button:hover {
-            background-color: #b99d00;
+            background-color: #bb6a00;
         }
         #profile-picture {
             position: absolute;
@@ -180,8 +205,17 @@
             <div class="search-container">
                 <input type="text" id="cityInput" placeholder="Enter city name">
                 <button onclick="getWeather()">Get Weather</button>
-                <img src="profile-picture.png" alt="" id = "profile-picture">
+                <div class="unit-toggle-container">
+                    <label id="unitSelect_text">Select Unit:</label>
+                    <select id="unitSelect" onchange="toggleUnits()">
+                        <option value="metric" selected>Celsius (°C)</option>
+                        <option value="imperial">Fahrenheit (°F)</option>
+                    </select>
+                </div>
+                                
+                <img src="profile-picture.png" alt="" id="profile-picture">
             </div>
+            
             <div id="weatherWidget" class="weather-widget floating"></div>
             <div class="charts-container">
                 <div class="chart-wrapper">
@@ -202,7 +236,6 @@
         const API_KEY = '031bb10685bdb53d0b947e5eb8bc5c5e';
         let forecastData = [];
         let currentPage = 1;
-        const itemsPerPage = 10;
         let barChart, doughnutChart, lineChart;
     
         function getLocation() {
@@ -236,24 +269,68 @@
             }
         }
     
+        let currentUnit = 'metric'; // Default to Celsius (metric system)
+        let isCelsius = true; // Toggle state
+
+        // Function to toggle between Celsius and Fahrenheit
+        function toggleUnits() {
+            isCelsius = !isCelsius;
+            document.getElementById('unitLabel').textContent = isCelsius ? 'Celsius' : 'Fahrenheit';
+            getWeather(); // Re-fetch weather data in the new unit system
+        }
+
+        // Function to convert temperature based on selected unit
+        function convertTemperature(temp) {
+            if (isCelsius) {
+                return temp; // Celsius, no conversion needed
+            } else {
+                return (temp * 9/5) + 32; // Convert to Fahrenheit
+            }
+        }
+
         function getWeather() {
             const city = document.getElementById('cityInput').value;
-            const currentWeatherUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric`;
-            const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${API_KEY}&units=metric`;
-    
+            currentUnit = isCelsius ? 'metric' : 'imperial'; // Update unit system based on toggle
+            const currentWeatherUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=${currentUnit}`;
+            const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${API_KEY}&units=${currentUnit}`;
+
             $.getJSON(currentWeatherUrl, function(data) {
                 updateWeatherWidget(data);
             }).fail(function() {
                 alert('Error: City not found or API limit reached.');
             });
-    
+
             $.getJSON(forecastUrl, function(data) {
                 forecastData = data.list;
                 destroyCharts();  // Destroy the existing charts before updating
                 updateCharts();   // Update charts with new data
-                updateForecastTable();
             }).fail(function() {
                 alert('Error: Unable to fetch forecast data.');
+            });
+        }
+
+        function updateWeatherWidget(data) {
+            const widget = document.getElementById('weatherWidget');
+            const weatherCondition = data.weather[0].main.toLowerCase();
+            widget.style.backgroundImage = `url('/api/placeholder/800/400?text=${weatherCondition}')`;
+
+            const temp = convertTemperature(data.main.temp); // Convert based on the unit
+            const tempUnit = isCelsius ? '°C' : '°F'; // Display the unit dynamically
+
+            widget.innerHTML = `
+                <h2>${data.name}</h2>
+                <p>Temperature: ${temp}${tempUnit}</p>
+                <p>Humidity: ${data.main.humidity}%</p>
+                <p>Wind Speed: ${data.wind.speed} m/s</p>
+                <p>Weather: ${data.weather[0].description}</p>
+            `;
+
+            anime({
+                targets: widget,
+                opacity: [0, 1],
+                translateY: [50, 0],
+                duration: 1000,
+                easing: 'easeOutElastic(1, .8)'
             });
         }
     
@@ -303,6 +380,14 @@
             updateConditionsDoughnutChart();
             updateTemperatureLineChart();
         }
+        function toggleUnits() {
+            const unitSelect = document.getElementById('unitSelect');
+            currentUnit = unitSelect.value; // Get the selected unit from the dropdown
+            isCelsius = currentUnit === 'metric'; // Update isCelsius based on the selected unit
+            document.getElementById('unitLabel').textContent = isCelsius ? 'Celsius' : 'Fahrenheit';
+            getWeather(); // Re-fetch weather data in the new unit system
+        }
+
     
         function destroyCharts() {
             if (barChart) barChart.destroy();
@@ -311,87 +396,123 @@
         }
     
         function updateTemperatureBarChart() {
-            const ctx = document.getElementById('temperatureBarChart').getContext('2d');
-            const temperatures = forecastData.slice(0, 5).map(item => item.main.temp);
-            const labels = forecastData.slice(0, 5).map(item => new Date(item.dt * 1000).toLocaleDateString());
-    
-            barChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Temperature (°C)',
-                        data: temperatures,
-                        backgroundColor: 'rgba(75, 192, 192, 0.5)',
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            labels: { color: 'white' }
-                        },
-                        title: {
-                            display: true,
-                            text: '5 Days Temperature Bar Chart',
-                            color: 'white',
-                            font: { size: 18 }
-                        }
+        const ctx = document.getElementById('temperatureBarChart').getContext('2d');
+        const temperatures = forecastData.slice(0, 5).map(item => convertTemperature(item.main.temp));
+        const labels = forecastData.slice(0, 5).map(item => new Date(item.dt * 1000).toLocaleDateString());
+        
+        const tempUnit = isCelsius ? '°C' : '°F'; // Update chart label unit
+
+        barChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: `Temperature (${tempUnit})`,
+                    data: temperatures,
+                    backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: { color: 'white' }
                     },
-                    scales: {
-                        y: { ticks: { color: 'white' } },
-                        x: { ticks: { color: 'white' } }
+                    title: {
+                        display: true,
+                        text: `5 Days Temperature Bar Chart (${tempUnit})`,
+                        color: 'white',
+                        font: { size: 18 }
                     }
-                }
-            });
-        }
-    
-        function updateConditionsDoughnutChart() {
-            const ctx = document.getElementById('conditionsChart').getContext('2d');
-            const conditions = forecastData.slice(0, 40).map(item => item.weather[0].main);
-            const conditionCounts = conditions.reduce((acc, condition) => {
-                acc[condition] = (acc[condition] || 0) + 1;
-                return acc;
-            }, {});
-    
-            doughnutChart = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: Object.keys(conditionCounts),
-                    datasets: [{
-                        data: Object.values(conditionCounts),
-                        backgroundColor: [
-                            'rgba(255, 99, 132, 0.8)',
-                            'rgba(54, 162, 235, 0.8)',
-                            'rgba(255, 206, 86, 0.8)',
-                            'rgba(75, 192, 192, 0.8)',
-                            'rgba(153, 102, 255, 0.8)'
-                        ]
-                    }]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    animation: {
-                        delay: (context) => context.dataIndex * 300
-                    },
-                    plugins: {
-                        legend: {
-                            labels: { color: 'white' }
-                        },
-                        title: {
-                            display: true,
-                            text: 'Weather Condition',
-                            color: 'white',
-                            font: { size: 18 }
-                        }
-                    }
+                scales: {
+                    y: { ticks: { color: 'white' } },
+                    x: { ticks: { color: 'white' } }
                 }
-            });
+            }
+        });
+    }
+
+    
+    function updateConditionsDoughnutChart() {
+    const ctx = document.getElementById('conditionsChart').getContext('2d');
+    // Get data for 5 days (assuming 8 data points per day)
+    const fiveDaysData = forecastData.slice(0, 40);
+    // Group the data by day
+    const groupedByDay = fiveDaysData.reduce((acc, item, index) => {
+        const dayIndex = Math.floor(index / 8);
+        if (!acc[dayIndex]) {
+            acc[dayIndex] = [];
         }
+        acc[dayIndex].push(item);
+        return acc;
+    }, {});
+
+    // Get the most common condition for each day
+    const dailyConditions = Object.values(groupedByDay).map(day => {
+        const conditions = day.map(item => item.weather[0].main);
+        return conditions.reduce((a, b, i, arr) =>
+            arr.filter(v => v === a).length >= arr.filter(v => v === b).length ? a : b
+        );
+    });
+
+    const conditionCounts = dailyConditions.reduce((acc, condition) => {
+        acc[condition] = (acc[condition] || 0) + 1;
+        return acc;
+    }, {});
+
+    // Define a color map for different weather conditions
+    const weatherColors = {
+        'Clear': 'rgba(255, 223, 0, 0.8)',      // Bright yellow
+        'Clouds': 'rgba(169, 169, 169, 0.8)',   // Light gray
+        'Rain': 'rgba(0, 0, 255, 0.8)',         // Blue
+        'Drizzle': 'rgba(138, 43, 226, 0.8)',   // Blue violet
+        'Thunderstorm': 'rgba(255, 0, 0, 0.8)', // Red
+        'Snow': 'rgba(255, 250, 250, 0.8)',     // Snow white
+        'Mist': 'rgba(216, 191, 216, 0.8)',     // Thistle
+        'Fog': 'rgba(192, 192, 192, 0.8)',      // Silver
+        'Haze': 'rgba(210, 180, 140, 0.8)',     // Tan
+        'Dust': 'rgba(210, 105, 30, 0.8)',      // Chocolate
+        'Smoke': 'rgba(112, 128, 144, 0.8)',    // Slate gray
+        'Tornado': 'rgba(128, 0, 128, 0.8)',    // Purple
+        'Squall': 'rgba(0, 128, 128, 0.8)'      // Teal
+    };
+
+    // Default color for any undefined weather condition
+    const defaultColor = 'rgba(128, 128, 128, 0.8)'; // Gray
+
+    doughnutChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: Object.keys(conditionCounts),
+            datasets: [{
+                data: Object.values(conditionCounts),
+                backgroundColor: Object.keys(conditionCounts).map(condition => weatherColors[condition] || defaultColor)
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: {
+                delay: (context) => context.dataIndex * 300
+            },
+            plugins: {
+                legend: {
+                    labels: { color: 'white' }
+                },
+                title: {
+                    display: true,
+                    text: '5 Days Weather Condition',
+                    color: 'white',
+                    font: { size: 18 }
+                }
+            }
+        }
+    });
+}
     
         function updateTemperatureLineChart() {
             const ctx = document.getElementById('temperatureLineChart').getContext('2d');
@@ -456,7 +577,47 @@
             `;
             forecastTableContainer.innerHTML = tableHTML;
         }
-    
+        function updateWeatherWidget(data) {
+        const widget = document.getElementById('weatherWidget');
+        const weatherCondition = data.weather[0].main.toLowerCase();
+        const body = document.body;
+
+        // Default background (for "clear" weather)
+        let gradient = "linear-gradient(135deg, #000000, #4e310b)";
+
+        // Change background based on weather conditions
+        if (weatherCondition.includes('clouds')) {
+            gradient = "linear-gradient(135deg, #c0c0c0, #808080)"; // Silverish for clouds
+        } else if (weatherCondition.includes('rain')) {
+            gradient = "linear-gradient(135deg, #3b5998, #0e4d92)"; // Blueish for rain
+        } else if (weatherCondition.includes('thunderstorm')) {
+            gradient = "linear-gradient(135deg, #ff0000, #8b0000)"; // Red for thunderstorm
+        } else if (weatherCondition.includes('clear')) {
+            gradient = "linear-gradient(135deg, #000000, #4e310b)"; // Original gradient for sunny
+        }
+
+        // Apply the gradient to the body background
+        body.style.background = gradient;
+
+        const temp = convertTemperature(data.main.temp);
+        const tempUnit = isCelsius ? '°C' : '°F';
+
+        widget.innerHTML = `
+            <h2>${data.name}</h2>
+            <p>Temperature: ${temp}${tempUnit}</p>
+            <p>Humidity: ${data.main.humidity}%</p>
+            <p>Wind Speed: ${data.wind.speed} m/s</p>
+            <p>Weather: ${data.weather[0].description}</p>
+        `;
+
+        anime({
+            targets: widget,
+            opacity: [0, 1],
+            translateY: [50, 0],
+            duration: 1000,
+            easing: 'easeOutElastic(1, .8)'
+        });
+    }
         window.onload = function() {
             getLocation();
         }

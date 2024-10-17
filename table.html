@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Weather Tables Page</title>
+    <title>Advanced Weather and Chatbot Integration</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
     <style>
@@ -15,22 +15,26 @@
             font-family: 'Poppins', sans-serif;
             height: 100%;
             background: linear-gradient(135deg, #000000, #4e310b);
-            color: #333;
+            color: #fff;
+            overflow-x: hidden;
         }
         .container {
             display: flex;
-            height: 100%;
+            height: 100vh; 
+            overflow: hidden; 
         }
         .sidebar {
+            border-top-right-radius: 15px;
+            border-bottom-right-radius: 15px;
             width: 250px;
-            background-color: rgba(255, 255, 255, 0.1);
+            background-color: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(10px);
             padding: 20px;
             box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
             transition: all 0.3s ease;
         }
         .sidebar:hover {
-            background-color: rgba(255, 255, 255, 0.2);
+            background-color: rgba(255, 255, 255, 0.08);
         }
         .logo {
             display: flex;
@@ -46,7 +50,7 @@
         .logo-text {
             font-size: 18px;
             font-weight: bold;
-            color: #f9cd08;
+            color: #fd9813;
         }
         .sidebar-divider {
             height: 1px;
@@ -58,7 +62,7 @@
             width: 100%;
             padding: 10px;
             margin: 5px 0;
-            background-color: #8f710f;
+            background-color: #693c00;
             border: none;
             border-radius: 5px;
             cursor: pointer;
@@ -66,53 +70,112 @@
             transition: all 0.3s ease;
         }
         .sidebar-button:hover {
-            background-color: #b99d00;
-
+            background-color: #bb6a00;
             transform: translateY(-2px);
         }
         .main-content {
             flex-grow: 1;
             padding: 20px;
             display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-            gap: 20px;
+            justify-content: flex-start;
+            align-items: flex-start;
+            overflow-y: auto;
         }
+        .content-wrapper {
+            display: flex;
+            gap: 20px; 
+            width: 100%;
+            justify-content: space-between; 
+        }
+
         .weather-container {
-            flex: 2;
             display: flex;
             flex-direction: column;
-            max-width: 60%;
+            align-items: center;
+            width: 100%;
+            max-width: 800px;
+            margin-top: 50px;
+            flex-basis: 50%;
+
         }
         .search-container {
-            margin-bottom: 20px;
             display: flex;
-            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            transition: all 0.5s ease;
+            width: 100%;
+            max-width: 600px;
+        }
+        .search-container.active {
+            transform: translateY(-30px);
         }
         .search-container input {
-            padding: 10px;
-            width: 300px;
+            padding: 15px;
+            flex-grow: 2;
             border: none;
-            border-radius: 25px 0 0 25px;
-            font-size: 16px;
+            border-radius: 25px;
+            font-size: 18px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            transition: all 0.3s ease;
+        }
+        .search-container input:focus {
+            outline: none;
+            box-shadow: 0 0 10px rgba(253, 152, 19, 0.5);
         }
         .search-container button {
-            padding: 10px 20px;
-            background-color: #8f710f;
-            color: white;
+            padding: 15px 30px;
+            background-color: #fd9813;
+            color: #000;
             border: none;
-            border-radius: 0 25px 25px 0;
+            border-radius: 25px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 18px;
+            font-weight: bold;
             transition: all 0.3s ease;
         }
         .search-container button:hover {
-            background-color: #b99d00;
+            background-color: #ff7b00;
+            transform: translateY(-2px);
+        }
+        .dropdown {
+            display: none;
+            margin-top: 20px;
+            width: 100%;
+            max-width: 600px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        .dropdown.visible {
+            opacity: 1;
+        }
+        .dropdown-select {
+            width: 100%;
+            padding: 15px;
+            background-color: #693c00;
+
+
+            border: none;
+            border-radius: 25px;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .dropdown-select:hover {
+            background-color: #bb6a00;
         }
         .forecast-table {
             width: 100%;
             border-collapse: separate;
             border-spacing: 0 10px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            margin-top: 20px;
+        }
+        .forecast-table.visible {
+            opacity: 1;
         }
         .forecast-table th, .forecast-table td {
             padding: 15px;
@@ -121,7 +184,11 @@
             color: white;
         }
         .forecast-table th {
-            background-color: rgba(255, 255, 255, 0.2);
+            background-color: rgba(253, 152, 19, 0.3);
+            font-weight: bold;
+        }
+        .forecast-table tr {
+            transition: all 0.3s ease;
         }
         .forecast-table tr:hover {
             transform: scale(1.02);
@@ -136,53 +203,120 @@
             margin: 0 5px;
             padding: 10px 20px;
             cursor: pointer;
-            background-color: rgba(255, 255, 255, 0.1);
+            background-color: rgba(253, 152, 19, 0.2);
             border: none;
             border-radius: 25px;
             color: #fff;
             transition: all 0.3s ease;
+            min-width: 100px;
+            text-align: center;
         }
+
         .pagination button:hover {
-            background-color: rgba(255, 255, 255, 0.3);
+            background-color: rgba(253, 152, 19, 0.4);
         }
         .chat-container {
-            flex: 1;
             display: flex;
             flex-direction: column;
-            max-width: 30%;
+            width: 100%;
+            max-width: 600px;
+            max-height: fit-content;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(5px);
+            margin-top: 40px;
+            flex-basis: 45%; 
+            margin-top: 0; 
+    
+        }
+        .chat-title {
+            text-align: center;
+            color: #fd9813;
+            font-size: 24px;
+            margin-bottom: 15px;
         }
         .chat-messages {
-            height: 200px;
+            flex-grow: 1;
+            height: 300px;
             overflow-y: auto;
             border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 10px;
+            padding: 15px;
             margin-bottom: 10px;
             border-radius: 10px;
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+        .chat-message {
+            padding: 12px 20px;
+            border-radius: 20px;
+            margin-bottom: 10px;
+            max-width: fit-content;
+            word-wrap: break-word;
+            animation: fadeIn 0.3s ease;
+        }
+        .chat-message.user {
+            background-color: #fd9813;
+            color: #000;
+            margin-left: auto;
+            text-align: right;
+            
+        }
+        .chat-message.bot {
+            background-color: rgba(255, 255, 255, 0.1);
             color: white;
+            margin-right: auto;
         }
         .chat-input {
             display: flex;
+            align-items: center;
+            gap: 10px;
         }
         .chat-input input {
             flex-grow: 1;
-            padding: 10px;
-            margin-right: 10px;
-            border: none;
+            padding: 15px;
             border-radius: 25px;
+            border: none;
             font-size: 16px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
         }
         .chat-input button {
-            padding: 10px 20px;
-            background-color: #8f710f;
-            color: white;
+            padding: 15px 30px;
+            background-color: #fd9813;
+            color: #000;
             border: none;
             border-radius: 25px;
             cursor: pointer;
             font-size: 16px;
+            font-weight: bold;
             transition: all 0.3s ease;
         }
         .chat-input button:hover {
-            background-color: #b99d00;
+            background-color: #ff7b00;
+            transform: translateY(-2px);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .loading-spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid #fd9813;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
@@ -198,100 +332,256 @@
             <button class="sidebar-button" onclick="window.location.href='table.html'">Tables</button>
         </div>
         <div class="main-content">
-            <div class="weather-container">
-                <div class="search-container">
-                    <input type="text" id="cityInput" placeholder="Enter city name">
-                    <button onclick="getWeather()">Get Weather</button>
+            <div class="content-wrapper">
+                <div class="weather-container">
+                    <div class="search-container">
+                        <input type="text" id="cityInput" placeholder="Enter city name">
+                        <button onclick="getWeather()">Get Weather</button>
+                    </div>
+                    <div class="loading">
+                        <div class="loading-spinner"></div>
+                        <p>Fetching weather data...</p>
+                    </div>
+                    <div class="dropdown">
+                        <select id="weatherActions" class="dropdown-select" onchange="handleDropdownChange()">
+                            <option value="" disabled selected>Select an action</option>
+                            <option value="asc">Sort Temperature Ascending</option>
+                            <option value="desc">Sort Temperature Descending</option>
+                            <option value="rain">Filter Rainy Days</option>
+                            <option value="hottest">Show Hottest Day</option>
+                        </select>
+                    </div>
+                    <div id="forecastTableContainer"></div>
+                    <div class="pagination">
+                        <button onclick="previousPage()">Previous</button>
+                        <button onclick="nextPage()">Next</button>
+                    </div>
                 </div>
-                <div id="forecastTableContainer"></div>
-                <div class="pagination">
-                    <button onclick="previousPage()">Previous</button>
-                    <button onclick="nextPage()">Next</button>
-                </div>
-            </div>
-            <div class="chat-container">
-                <div class="chat-messages" id="chatMessages"></div>
-                <div class="chat-input">
-                    <input type="text" id="chatInput" placeholder="Ask about anything...">
-                    <button onclick="sendMessage()">Send</button>
+                <div class="chat-container">
+                    <h2 class="chat-title">Chat with Our Bot</h2>
+                    <div class="chat-messages" id="chatMessages"></div>
+                    <div class="chat-input">
+                        <input type="text" id="chatInput" placeholder="Ask anything...">
+                        <button onclick="sendMessage()">Send</button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+    </div>
 
     <script>
-        const API_KEY = '031bb10685bdb53d0b947e5eb8bc5c5e'; 
+        const WEATHER_API_KEY = '031bb10685bdb53d0b947e5eb8bc5c5e';
+        const GEMINI_API_KEY = 'AIzaSyAe6d1ZbuP6OFY17CbkE516IxeuK_0_XIc';
+
         let forecastData = [];
         let currentPage = 1;
         const itemsPerPage = 10;
 
+        document.getElementById('cityInput').addEventListener('input', function() {
+            const searchContainer = document.querySelector('.search-container');
+            if (this.value) {
+                searchContainer.classList.add('active');
+            } else {
+                searchContainer.classList.remove('active');
+            }
+        });
+
         function getWeather() {
             const city = document.getElementById('cityInput').value;
-            if (city) {
-                const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${API_KEY}&units=metric`;
-
-                $.getJSON(forecastUrl, function(data) {
-                    forecastData = data.list;
-                    updateForecastTable();
-                }).fail(function() {
-                    alert('Error: Unable to fetch forecast data');
-                });
-            } else {
+            if (!city) {
                 alert('Please enter a city name');
+                return;
             }
+
+            showLoading();
+
+            const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${WEATHER_API_KEY}&units=metric`;
+
+            $.getJSON(forecastUrl, data => {
+                forecastData = data.list;
+                displayForecast();
+                showDropdown();
+                hideLoading();
+            }).fail((jqXHR) => {
+                hideLoading();
+                if (jqXHR.status === 404) {
+                    alert('City not found. Please check the spelling and try again.');
+                } else {
+                    alert('Error fetching forecast data. Please try again later.');
+                }
+            });
         }
 
-        function updateForecastTable() {
-            const forecastTableContainer = document.getElementById('forecastTableContainer');
-            const tableHTML = `
-                <table class="forecast-table">
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Temperature</th>
-                            <th>Condition</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${forecastData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map(item => `
-                            <tr>
-                                <td>${new Date(item.dt * 1000).toLocaleString()}</td>
-                                <td>${item.main.temp}°C</td>
-                                <td>${item.weather[0].description}</td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-            `;
-            forecastTableContainer.innerHTML = tableHTML;
-        }
+        function displayForecast() {
+            const tableContainer = document.getElementById('forecastTableContainer');
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const currentPageData = forecastData.slice(start, end);
 
-        function previousPage() {
-            if (currentPage > 1) {
-                currentPage--;
-                updateForecastTable();
+            let tableHTML = '<table class="forecast-table"><thead><tr><th>Date</th><th>Temperature (°C)</th><th>Weather</th><th>Humidity</th><th>Wind Speed (m/s)</th></tr></thead><tbody>';
+            currentPageData.forEach(item => {
+                const date = new Date(item.dt_txt).toLocaleString();
+                const temp = item.main.temp.toFixed(1);
+                const weather = item.weather[0].description;
+                const humidity = item.main.humidity;
+                const windSpeed = item.wind.speed.toFixed(1);
+                tableHTML += `<tr><td>${date}</td><td>${temp}</td><td>${weather}</td><td>${humidity}%</td><td>${windSpeed}</td></tr>`;
+            });
+        tableHTML += '</tbody></table>';
+
+        tableContainer.innerHTML = tableHTML;
+        
+        anime({
+            targets: '.forecast-table',
+            opacity: [0, 1],
+            translateY: [20, 0],
+            easing: 'easeOutExpo',
+            duration: 800,
+            delay: 200
+        });
+    }
+
+    function showDropdown() {
+        const dropdown = document.querySelector('.dropdown');
+        dropdown.style.display = 'block';
+        anime({
+            targets: '.dropdown',
+            opacity: [0, 1],
+            translateY: [20, 0],
+            easing: 'easeOutExpo',
+            duration: 800
+        });
+    }
+
+    function nextPage() {
+        if ((currentPage * itemsPerPage) < forecastData.length) {
+            currentPage++;
+            displayForecast();
+        }
+    }
+
+    function previousPage() {
+        if (currentPage > 1) {
+            currentPage--;
+            displayForecast();
+        }
+    }
+
+    function handleDropdownChange() {
+        const action = document.getElementById('weatherActions').value;
+        if (action === 'asc') {
+            forecastData.sort((a, b) => a.main.temp - b.main.temp);
+        } else if (action === 'desc') {
+            forecastData.sort((a, b) => b.main.temp - a.main.temp);
+        } else if (action === 'rain') {
+            forecastData = forecastData.filter(item => item.weather[0].main.toLowerCase() === 'rain');
+        } else if (action === 'hottest') {
+            const hottestDay = forecastData.reduce((prev, current) => (prev.main.temp > current.main.temp) ? prev : current);
+            forecastData = [hottestDay];
+        }
+        currentPage = 1;
+        displayForecast();
+    }
+
+    function sendMessage() {
+        const userInput = document.getElementById('chatInput').value;
+        const chatMessages = document.getElementById('chatMessages');
+
+        if (!userInput.trim()) return;
+
+        appendMessage('user', userInput);
+
+        if (userInput.toLowerCase().includes("weather") || userInput.toLowerCase().includes("forecast")) {
+            const cityMatch = userInput.match(/in\s([a-zA-Z\s]+)/i);
+            if (cityMatch && cityMatch[1]) {
+                const city = cityMatch[1].trim();
+                getWeatherForChat(city);
+            } else {
+                appendMessage('bot', "Please specify a city, e.g., 'What's the weather in London?'.");
             }
+        } else {
+            // Handle general queries via Gemini API
+            fetch('https://api.gen-ai.com/chatbot', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${GEMINI_API_KEY}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ query: userInput })
+            })
+            .then(response => response.json())
+            .then(data => {
+                appendMessage('bot', data.response);
+            })
+            .catch(() => {
+                appendMessage('bot', "Sorry, I couldn't process your request.");
+            });
         }
 
-        function nextPage() {
-            if (currentPage < Math.ceil(forecastData.length / itemsPerPage)) {
-                currentPage++;
-                updateForecastTable();
+        document.getElementById('chatInput').value = ''; // Clear input
+    }
+
+    function getWeatherForChat(city) {
+        const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${WEATHER_API_KEY}&units=metric`;
+
+        $.getJSON(forecastUrl, data => {
+            const forecast = data.list[0];
+            const weatherDescription = forecast.weather[0].description;
+            const temperature = forecast.main.temp.toFixed(1);
+            const humidity = forecast.main.humidity;
+            const windSpeed = forecast.wind.speed.toFixed(1);
+
+            const message = `The weather in ${city} is currently ${weatherDescription} with a temperature of ${temperature}°C. The humidity is ${humidity}% and the wind speed is ${windSpeed} m/s.`;
+            appendMessage('bot', message);
+        }).fail(() => {
+            appendMessage('bot', `Sorry, I couldn't fetch the weather for ${city}. Please check the spelling and try again.`);
+        });
+    }
+
+    function appendMessage(sender, message) {
+        const chatMessages = document.getElementById('chatMessages');
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('chat-message', sender);
+        messageDiv.textContent = sender === 'user' ? `You: ${message}` : `Bot: ${message}`;
+        chatMessages.appendChild(messageDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        anime({
+            targets: messageDiv,
+            opacity: [0, 1],
+            translateY: [20, 0],
+            easing: 'easeOutExpo',
+            duration: 500
+        });
+    }
+
+    function showLoading() {
+        document.querySelector('.loading').style.display = 'block';
+    }
+
+    function hideLoading() {
+        document.querySelector('.loading').style.display = 'none';
+    }
+
+    // Initialize the page
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelector('.dropdown').style.display = 'none';
+        
+        // Add event listener for Enter key in search input
+        document.getElementById('cityInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                getWeather();
             }
-        }
+        });
 
-        function sendMessage() {
-            const chatInput = document.getElementById('chatInput');
-            const chatMessages = document.getElementById('chatMessages');
-            const userMessage = chatInput.value;
-
-            if (userMessage) {
-                const newMessage = document.createElement('div');
-                newMessage.textContent = `User: ${userMessage}`;
-                chatMessages.appendChild(newMessage);
-                chatInput.value = '';
+        // Add event listener for Enter key in chat input
+        document.getElementById('chatInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
             }
-        }
+        });
+    });
     </script>
 </body>
 </html>
