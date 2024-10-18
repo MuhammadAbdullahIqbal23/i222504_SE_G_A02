@@ -9,6 +9,7 @@ function sendMessage() {
     if (!userInput.trim()) return;  // Prevent empty messages
 
     appendMessage('user', userInput);  // Append user message to the chat
+    showLoadingIndicator(); // Show loading indicator
 
     if (userInput.toLowerCase().includes("weather") || userInput.toLowerCase().includes("forecast")) {
         const cityMatch = userInput.match(/in\s([a-zA-Z\s]+)/i); // Extract city name
@@ -17,12 +18,15 @@ function sendMessage() {
             getWeatherForChat(city); // Fetch weather for the specified city
         } else {
             appendMessage('bot', "Please specify a city, e.g., 'What's the weather in London?'");
+            hideLoadingIndicator(); // Hide loading indicator
         }
     } else {
         fetchAIResponse(userInput).then(response => {
             appendMessage('bot', response);
+            hideLoadingIndicator(); // Hide loading indicator
         }).catch(() => {
             appendMessage('bot', "Sorry, I couldn't process your request.");
+            hideLoadingIndicator(); // Hide loading indicator
         });
     }
 
@@ -74,7 +78,6 @@ async function fetchAIResponse(userInput) {
         return 'Error: Unable to fetch response from the API.';
     }
 }
-
 // Function to fetch weather information for the specified city
 function getWeatherForChat(city) {
     const WEATHER_API_KEY = '031bb10685bdb53d0b947e5eb8bc5c5e'; // Replace with your actual OpenWeather API key
@@ -91,12 +94,13 @@ function getWeatherForChat(city) {
 
             const message = `The weather in ${city} is currently ${weatherDescription} with a temperature of ${temperature}°C. The humidity is ${humidity}% and the wind speed is ${windSpeed} m/s.`;
             appendMessage('bot', message);
+            hideLoadingIndicator(); // Hide loading indicator
         })
         .catch(() => {
             appendMessage('bot', `Sorry, I couldn't fetch the weather for ${city}. Please check the spelling and try again.`);
+            hideLoadingIndicator(); // Hide loading indicator
         });
 }
-
 // Function to append messages to the chat UI
 function appendMessage(sender, message) {
     const chatMessages = document.getElementById('chatMessages');
@@ -117,3 +121,29 @@ function appendMessage(sender, message) {
         });
     }
 }
+
+// Function to show loading indicator
+function showLoadingIndicator() {
+    const loadingIndicator = document.getElementById('chatLoading');
+    if (loadingIndicator) {
+        loadingIndicator.style.display = 'block';
+    }
+}
+
+// Function to hide loading indicator
+function hideLoadingIndicator() {
+    const loadingIndicator = document.getElementById('chatLoading');
+    if (loadingIndicator) {
+        loadingIndicator.style.display = 'none';
+    }
+}
+
+// Initialize the page
+document.addEventListener('DOMContentLoaded', function() {
+    // Add event listener for Enter key in chat input
+    document.getElementById('chatInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            sendMessage();
+        }
+    });
+});

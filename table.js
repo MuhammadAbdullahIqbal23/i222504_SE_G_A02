@@ -111,43 +111,6 @@ const WEATHER_API_KEY = '031bb10685bdb53d0b947e5eb8bc5c5e';
         displayForecast();
     }
 
-    // function sendMessage() {
-    //     const userInput = document.getElementById('chatInput').value;
-    //     const chatMessages = document.getElementById('chatMessages');
-
-    //     if (!userInput.trim()) return;
-
-    //     appendMessage('user', userInput);
-
-    //     if (userInput.toLowerCase().includes("weather") || userInput.toLowerCase().includes("forecast")) {
-    //         const cityMatch = userInput.match(/in\s([a-zA-Z\s]+)/i);
-    //         if (cityMatch && cityMatch[1]) {
-    //             const city = cityMatch[1].trim();
-    //             getWeatherForChat(city);
-    //         } else {
-    //             appendMessage('bot', "Please specify a city, e.g., 'What's the weather in London?'.");
-    //         }
-    //     } else {
-    //         // Handle general queries via Gemini API
-    //         fetch('https://api.gen-ai.com/chatbot', {
-    //             method: 'POST',
-    //             headers: {
-    //                 'Authorization': `Bearer ${GEMINI_API_KEY}`,
-    //                 'Content-Type': 'application/json'
-    //             },
-    //             body: JSON.stringify({ query: userInput })
-    //         })
-    //         .then(response => response.json())
-    //         .then(data => {
-    //             appendMessage('bot', data.response);
-    //         })
-    //         .catch(() => {
-    //             appendMessage('bot', "Sorry, I couldn't process your request.");
-    //         });
-    //     }
-
-    //     document.getElementById('chatInput').value = ''; // Clear input
-    // }
 
     function getWeatherForChat(city) {
         const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${WEATHER_API_KEY}&units=metric`;
