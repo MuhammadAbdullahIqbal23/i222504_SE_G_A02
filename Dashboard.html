@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Weather Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+  <link rel="stylesheet" href="Dashboard.css">
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="logo">
+                <img src="logo2.jpeg" alt="Weather App Logo" >
+                <span class="logo-text">Weather App</span>
+            </div>
+            <div class="sidebar-divider"></div>
+            <button class="sidebar-button" onclick="window.location.href='index.html'">Dashboard</button>
+            <button class="sidebar-button" onclick="window.location.href='table.html'">Tables</button>
+        </div>
+        <div class="main-content">
+            <div class="search-container">
+                <input type="text" id="cityInput" placeholder="Enter city name">
+                <button onclick="getWeather()">Get Weather</button>
+                <div class="unit-toggle-container">
+                    <label id="unitSelect_text">Select Unit:</label>
+                    <select id="unitSelect" onchange="toggleUnits()">
+                        <option value="metric" selected>Celsius (°C)</option>
+                        <option value="imperial">Fahrenheit (°F)</option>
+                    </select>
+                </div>
+                                
+                <img src="profile-picture.png" alt="" id="profile-picture">
+            </div>
+            
+            <div id="weatherWidget" class="weather-widget floating"></div>
+            <div class="charts-container">
+                <div class="chart-wrapper">
+                    <canvas id="temperatureBarChart" width="400" height="200"></canvas>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="conditionsChart"></canvas>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="temperatureLineChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+  <script src="Dashboard.js"></script>
+    
+</body>
+</html>

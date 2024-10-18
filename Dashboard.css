@@ -1,0 +1,316 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+    height: 100%;
+    background: linear-gradient(135deg, #140000, #4e310b);
+    color: #333;
+    transition: background 0.5s ease;
+}
+
+.container {
+    display: flex;
+    height: 100%;
+}
+
+.sidebar {
+    border-top-right-radius: 15px;
+    border-bottom-right-radius: 15px;
+    width: 250px;
+    background-color: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    padding: 20px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.sidebar:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    border-radius: 15%;
+}
+
+.logo img {
+    width: 40px;
+    margin-right: 10px;
+    border-radius: 15%;
+}
+
+.logo-text {
+    font-size: 18px;
+    font-weight: bold;
+    color: #fd9813;
+    transition: color 0.5s ease;
+}
+
+.unit-toggle-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#unitSelect {
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #693c00;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#unitSelect_text {
+    color: white;
+    margin: 10px;
+}
+
+#unitSelect:hover {
+    filter: brightness(120%);
+}
+
+.sidebar-divider {
+    height: 1px;
+    background-color: rgba(255, 255, 255, 0.2);
+    margin: 10px 0;
+}
+
+.sidebar-button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0;
+    background-color: #693c00;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    color: #fff;
+    transition: all 0.3s ease;
+}
+
+.sidebar-button:hover {
+    transform: translateY(-2px);
+    filter: brightness(120%);
+}
+
+.main-content {
+    flex-grow: 1;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.search-container {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.search-container input {
+    padding: 10px;
+    width: 300px;
+    border: none;
+    border-radius: 25px 0 0 25px;
+    font-size: 16px;
+}
+
+.search-container button {
+    padding: 10px 20px;
+    background-color: #693c00;
+    color: white;
+    border: none;
+    border-radius: 0 25px 25px 0;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.search-container button:hover {
+    background-color: #bb6a00;
+}
+
+#profile-picture {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+}
+
+#profile-picture img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.weather-widget {
+    background-size: cover;
+    background-position: center;
+    color: white;
+    padding: 20px;
+    border-radius: 15px;
+    margin-bottom: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    transition: all 0.3s ease;
+}
+
+.weather-widget:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+}
+
+.charts-container {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.chart-wrapper {
+    width: 30%;
+    height: 300px;
+    background-color: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    transition: all 0.3s ease;
+}
+
+.chart-wrapper:hover {
+    transform: scale(1.03);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7);
+}
+
+.floating {
+    animation: floating 3s ease-in-out infinite;
+}
+
+@keyframes floating {
+    0% { transform: translate(0,  0px); }
+    50%  { transform: translate(0, 15px); }
+    100%   { transform: translate(0, -0px); }   
+}
+@media screen and (max-width: 768px) {
+    body, html {
+        height: auto;
+    }
+
+    .container {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        border-radius: 0;
+        padding: 10px;
+        
+    }
+
+    .main-content {
+        padding: 10px;
+    }
+
+    /* Top row with logo, app name, and profile picture */
+    .top-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .logo {
+        margin-bottom: 0;
+    }
+
+    .logo-text {
+        font-size: 16px;
+    }
+
+    #profile-picture {
+        position: absolute;
+        top: 10px;
+        left: 20px;  /* Move to the left for top-left corner */
+        width: 40px;
+        height: 40px;
+        margin-left: 80%;
+        margin-top: 0px;
+
+    }
+
+    /* Hide profile picture from its original position in the search-container */
+    .main-content .search-container #profile-picture {
+        display: show;
+    }
+  
+    /* Container for dashboard and table buttons */
+    .button-container {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+        margin-left: 25%;
+    }
+
+    .sidebar-button {
+        width: 48%;
+        margin-left: 25%;
+    }
+
+    /* Charts layout */
+    .charts-container {
+        flex-direction: column;
+    }
+
+    .chart-wrapper {
+        width: 92%;
+        height: 250px; /* Adjusted height for mobile */
+        margin-bottom: 20px;
+    }
+
+    /* Adjustments for other elements */
+    .search-container {
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+    }
+
+    .search-container input {
+        width: 100%;
+        margin-bottom: 10px;
+        border-radius: 25px;
+    }
+
+    .search-container button {
+        width: 100%;
+        border-radius: 25px;
+    }
+
+    .weather-widget {
+        margin-bottom: 20px;
+    }
+
+    .unit-toggle-container {
+        justify-content: center;
+        margin-bottom: 20px;
+        width: 100%;
+    }
+
+    #unitSelect {
+        width: 100%;
+    }
+
+    /* Adjust chart sizes */
+    #temperatureBarChart,
+    #conditionsChart,
+    #temperatureLineChart {
+        height: 200px !important; /* Force height with !important */
+        width: 100% !important; /* Force width with !important */
+    }
+}
